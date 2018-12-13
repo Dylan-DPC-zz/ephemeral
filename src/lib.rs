@@ -185,18 +185,18 @@ impl FilePath for PathBuf {
 #[cfg(test)]
 mod tests {
     use super::*;
-//    #[test]
-//    fn project_empty_build_creates_dir() {
-//        let path = PathBuf::from("tmp");
-//        let project = Project::new(&path);
-//        project.clone().build();
-//        assert!(path.exists());
-//        project.clear();
-//    }
+    #[test]
+    fn project_empty_build_creates_dir() {
+        let path = PathBuf::from("tmp");
+        let project = Project::new(&path);
+        project.clone().build();
+        assert!(path.exists());
+        project.clear();
+    }
 
     #[test]
     fn project_with_dir_and_files_works() {
-        let path = PathBuf::from("/home/dpc/Code/ephemeral/tmp");
+        let path = PathBuf::from("tmp2");
         let project = Project::new(&path)
             .add_dir(Dir::new("tmp2/foo").add_file("bar", &vec![101u8]))
                 .build();
