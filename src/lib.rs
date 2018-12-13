@@ -69,8 +69,6 @@ impl Project {
     /// Function panics if the directory or file cannot be created or written to.
 
     pub fn build(self) -> Self {
-        self.dirs[0].path.mkdir_p().expect("cannot create root directory");
-
         self.dirs.iter().for_each(|dir| {
             dir.path.mkdir_p().expect("cannot create directory");
 
