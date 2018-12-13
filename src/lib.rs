@@ -185,14 +185,14 @@ impl FilePath for PathBuf {
 #[cfg(test)]
 mod tests {
     use super::*;
-    #[test]
-    fn project_empty_build_creates_dir() {
-        let path = PathBuf::from("tmp");
-        let project = Project::new(&path);
-        project.clone().build();
-        assert!(path.exists());
-        project.clear();
-    }
+//    #[test]
+//    fn project_empty_build_creates_dir() {
+//        let path = PathBuf::from("tmp");
+//        let project = Project::new(&path);
+//        project.clone().build();
+//        assert!(path.exists());
+//        project.clear();
+//    }
 
     #[test]
     fn project_with_dir_and_files_works() {
