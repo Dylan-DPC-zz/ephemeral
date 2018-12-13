@@ -4,16 +4,6 @@ branches:
 
 language: rust
 
-matrix:
-  include:
-  - os: osx
-  - rust: nightly
-    before_script:
-    - rustup component add rustfmt-preview
-    script:
-    - cargo fmt --all -- --check
-    - cargo test
-
 notifications:
   email:
     on_success: never
