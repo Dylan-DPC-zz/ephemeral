@@ -99,7 +99,6 @@ impl Project {
     /// This function panics if a directory cannot be deleted.
 
     pub fn clear(self) {
-        println!("{:?}", &self.dirs[0]);
         remove_dir_all(&self.dirs[0].path).expect("can't delete directory")
     }
 }
@@ -167,9 +166,8 @@ impl File {
 /// will recursively create a directory and all of its parent components if they are missing while
 /// mkdir will create a single directory.
 
-pub trait FilePath {
+trait FilePath {
     fn mkdir_p(&self) -> Result<(), Box<dyn Error>>;
-    fn mkdir(&self) -> Result<(), Box<dyn Error>>;
 }
 
 impl FilePath for PathBuf {
@@ -177,9 +175,6 @@ impl FilePath for PathBuf {
         create_dir_all(self).map_err(|err| err.into())
     }
 
-    fn mkdir(&self) -> Result<(), Box<dyn Error>> {
-        create_dir(self).map_err(|err| err.into())
-    }
 }
 
 #[cfg(test)]
