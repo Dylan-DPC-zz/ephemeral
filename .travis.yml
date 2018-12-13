@@ -16,6 +16,6 @@ rust:
 - nightly
 
 script:
-- cargo test
+- RUN_BACKTRACE=1 cargo test
 
 sudo: false
