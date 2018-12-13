@@ -196,7 +196,7 @@ mod tests {
 
     #[test]
     fn project_with_dir_and_files_works() {
-        let path = PathBuf::from("/home/dpc/Code/ephemeral/tmp2");
+        let path = PathBuf::from("/home/dpc/Code/ephemeral/tmp");
         let project = Project::new(&path)
             .add_dir(Dir::new("tmp2/foo").add_file("bar", &vec![101u8]))
                 .build();
