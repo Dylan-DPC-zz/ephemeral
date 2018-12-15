@@ -13,7 +13,7 @@
 
  ```toml
  [dev-dependencies]
- ephemeral = "0.1"
+ ephemeral = "0.2"
  ```
 
  ## USAGE:
