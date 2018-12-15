@@ -30,7 +30,7 @@
 //! This will create a new project in a dir called `tmp` which will contain a dir "foo" which will
 //! contain a file `bar` with `e` (101u8) written to the file.
 
-use std::fs::{create_dir, create_dir_all, remove_dir_all, File as FsFile};
+use std::fs::{create_dir_all, remove_dir_all, File as FsFile};
 use std::{error::Error, io::Write, path::PathBuf};
 
 /// Project represents a project created on the file system at any user-defined location defined by
@@ -84,8 +84,13 @@ impl Project {
     }
 
     /// Adds a directory to the chain which will be created when `build()` is called. This accepts
-    /// a Dir, with the files already attached to it. To add a subdirectory, specify the path from
+    /// a Dir, with the files already attached to it.
+    ///
+    /// To add a subdirectory, specify the path from
     /// the project root.
+    ///
+    /// To add files to the root of a directory, you need to call `add_dir()` and give a path which
+    /// matches the project path.
 
     pub fn add_dir(mut self, directory: Dir) -> Self {
         self.dirs.push(directory);
@@ -174,7 +179,6 @@ impl FilePath for PathBuf {
     fn mkdir_p(&self) -> Result<(), Box<dyn Error>> {
         create_dir_all(self).map_err(|err| err.into())
     }
-
 }
 
 #[cfg(test)]
@@ -194,13 +198,27 @@ mod tests {
         let path = PathBuf::from("tmp2");
         let project = Project::new(&path)
             .add_dir(Dir::new("tmp2/foo").add_file("bar", &vec![101u8]))
-                .build();
+            .build();
 
         assert!(path.exists());
         let path = path.join("foo");
         assert!(path.exists());
         let path = path.join("bar");
         assert!(path.exists());
+        project.clear();
+    }
+
+    #[test]
+    fn project_with_1_file_in_root() {
+        let path = PathBuf::from("tmp3");
+        let project = Project::new(&path)
+            .add_dir(Dir::new("tmp3").add_file("bar", b"groot"))
+            .build();
+
+        assert!(path.exists());
+        let path = path.join("bar");
+        assert!(path.exists());
+
         project.clear();
     }
 
