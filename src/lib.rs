@@ -1,3 +1,5 @@
+#![cfg_attr(feature = "nightly", feature(try_from))]
+
 //! Ephemeral creates a temporary project on your filesystem at any location of your choice
 //! so that you can use it while testing anything that works on a rust project - mainly cargo
 //! commands/binaries. It can be used to generate projects of other languages too.
@@ -16,12 +18,13 @@
 //! To create a project:
 //!
 //! ```rust
-//! use ephemeral::{Project, Dir};
+//! use ephemeral::{builder::{RustBuilder, Builder}, Dir };
 //!
 //! fn main() {
-//!     let project = Project::new("tmp")
+//!     let project = RustBuilder::new("tmp")
 //!        .add_dir(Dir::new("tmp/foo").add_file("bar", &vec![101u8]))
-//!        .build();
+//!        .build()
+//!        .expect("cannot create project");
 //!
 //!     project.clear();
 //! }
@@ -30,8 +33,11 @@
 //! This will create a new project in a dir called `tmp` which will contain a dir "foo" which will
 //! contain a file `bar` with `e` (101u8) written to the file.
 
-use std::fs::{create_dir_all, remove_dir_all, File as FsFile};
-use std::{error::Error, io::Write, path::PathBuf};
+use std::fs::{create_dir_all, remove_dir_all};
+use std::{error::Error, path::PathBuf};
+
+pub mod builder;
+pub mod rust_tools;
 
 /// Project represents a project created on the file system at any user-defined location defined by
 /// the path parameter to the `new()` function.
@@ -59,43 +65,6 @@ impl Project {
             dirs: vec![Dir::new(&path)],
             path,
         }
-    }
-
-    /// Creates the project in the filesystem. This will create all the directories & files that are
-    /// added by using `add_dir()`.
-    ///
-    /// No function should be chained for this, except for `clear()`.
-    ///
-    /// Function panics if the directory or file cannot be created or written to.
-
-    pub fn build(self) -> Self {
-        self.dirs.iter().for_each(|dir| {
-            dir.path.mkdir_p().expect("cannot create directory");
-
-            dir.files.iter().for_each(|file| {
-                let mut fs_file = FsFile::create(&file.path).expect("cannot create file");
-                fs_file
-                    .write_all(&file.contents)
-                    .expect("cannot write to the file");
-            })
-        });
-
-        self
-    }
-
-    /// Adds a directory to the chain which will be created when `build()` is called. This accepts
-    /// a Dir, with the files already attached to it.
-    ///
-    /// To add a subdirectory, specify the path from
-    /// the project root.
-    ///
-    /// To add files to the root of a directory, you need to call `add_dir()` and give a path which
-    /// matches the project path.
-
-    pub fn add_dir(mut self, directory: Dir) -> Self {
-        self.dirs.push(directory);
-
-        self
     }
 
     /// Deletes the project from the filesystem. This function can be used to clear the project
@@ -171,7 +140,7 @@ impl File {
 /// will recursively create a directory and all of its parent components if they are missing while
 /// mkdir will create a single directory.
 
-trait FilePath {
+pub(crate) trait FilePath {
     fn mkdir_p(&self) -> Result<(), Box<dyn Error>>;
 }
 
@@ -179,47 +148,4 @@ impl FilePath for PathBuf {
     fn mkdir_p(&self) -> Result<(), Box<dyn Error>> {
         create_dir_all(self).map_err(|err| err.into())
     }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    #[test]
-    fn project_empty_build_creates_dir() {
-        let path = PathBuf::from("tmp");
-        let project = Project::new(&path);
-        project.clone().build();
-        assert!(path.exists());
-        project.clear();
-    }
-
-    #[test]
-    fn project_with_dir_and_files_works() {
-        let path = PathBuf::from("tmp2");
-        let project = Project::new(&path)
-            .add_dir(Dir::new("tmp2/foo").add_file("bar", &vec![101u8]))
-            .build();
-
-        assert!(path.exists());
-        let path = path.join("foo");
-        assert!(path.exists());
-        let path = path.join("bar");
-        assert!(path.exists());
-        project.clear();
-    }
-
-    #[test]
-    fn project_with_1_file_in_root() {
-        let path = PathBuf::from("tmp3");
-        let project = Project::new(&path)
-            .add_dir(Dir::new("tmp3").add_file("bar", b"groot"))
-            .build();
-
-        assert!(path.exists());
-        let path = path.join("bar");
-        assert!(path.exists());
-
-        project.clear();
-    }
-
 }

@@ -9,3 +9,10 @@ readme = "README.md"
 repository = "https://github.com/Dylan-DPC/ephemeral"
 
 [dependencies]
+toml = "0.4"
+semver = { version = "0.9", features = ["serde"] }
+serde_derive = "1"
+serde = "1"
+
+[features]
+nightly = []
